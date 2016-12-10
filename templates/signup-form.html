@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Sing up</h2>
+
+<form method="post">
+    <table>
+        <tr>
+            <td>Username*</td>
+            <td><input type="text" name="username" value="{{ username }}"></td>
+            <td><div class="error">{{ error_username }}</div></td>
+        </tr>
+        <tr>
+            <td>Password*</td>
+            <td><input type="password" name="password" value="{{ password }}"></td>
+            <td><div class="error">{{ error_password }}</div></td>
+        </tr>
+        <tr>
+            <td>Verify Password*</td>
+            <td><input type="password" name="verify" value="{{ verify }}"></td>
+            <td><div class="error">{{ error_verify}}</div></td>
+        </tr>
+        <tr>
+            <td>E-mail</td>
+            <td><input type="text" name="email" value="{{ email }}"></td>
+            <td><div class="error">{{ error_email }}</div></td>
+        </tr>
+    </table>
+
+    <input type="submit">
+</form>
+{% endblock %}

@@ -1,0 +1,38 @@
+body {
+    font-family: 'Libre Baskerville', serif;
+    margin-top: 2em;
+    color: #2e323c;
+}
+
+footer {
+    color: #91b3bc;
+}
+
+.blog-header {
+    background-color: #5b7d87;
+    min-height: 5em;
+}
+
+.title {
+    font-family: 'Playfair Display', serif;
+    color: #2b4251;
+}
+
+.post-date {
+    font-size: 0.75em;
+    color: #91b3bc;
+}
+
+a.title-link:link, a.title-link:visited, a.title-link:hover, a.title-link:active {
+    text-decoration: none;
+    color: #ebeced;
+}
+
+a.post-title:link,  a.post-title:hover, a.post-title:active {
+    /* text-decoration: none;*/
+    color: #2b4251;
+}
+
+a.post-title:visited {
+    color: #5b7d87;
+}
