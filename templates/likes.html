@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Your likes</h2>
+
+{% if post_liked %}
+Thanks for liking <a href="/blog/{{ post_liked.key().id() }}/">{{ post_liked.subject }}</a>, {{ user.name}}!
+{% endif %}
+<br>
+<br>
+<br>
+
+<table class="tlist">
+    <tr>
+        <td><strong>Subject</strong></td>
+        <td><strong>Author</strong></td>
+    </tr>
+{% for lk in likes %}
+    <tr>
+        <td><a href="/blog/{{ lk.post_ref.key().id() }}/" >{{ lk.post_ref.subject }}</a></td>
+        <td>{{ lk.post_ref.user().name }}</td>
+    <tr>
+{% endfor %}
+</table>
+
+{% endblock %}

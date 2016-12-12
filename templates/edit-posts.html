@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Your posts</h2>
+
+<table class="tlist">
+    <tr>
+        <td><strong>Subject</strong></td>
+        <td><strong>Created at</strong></td>
+        <td><strong>Last modified</strong></td>
+        <td></td>
+    </tr>
+{% for p in posts %}
+    <tr>
+        <td><a href="/blog/{{ p.key().id() }}/" >{{ p.subject }}</a></td>
+        <td>{{ p.created.strftime("%b %d, %Y") }}</td>
+        <td>{{ p.last_modified.strftime("%b %d, %Y") }}</td>
+        <td>
+            <a href="/blog/edit/{{ p.key().id() }}">edit</a>
+        </td>
+    <tr>
+{% endfor %}
+</table>
+
+{% endblock %}
