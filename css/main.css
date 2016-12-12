@@ -36,3 +36,26 @@ a.post-title:link,  a.post-title:hover, a.post-title:active {
 a.post-title:visited {
     color: #5b7d87;
 }
+
+.tlabel {
+    width: 5em;
+}
+
+.new-post {
+    min-width: 100%;
+}
+
+.new-post td {
+    padding: 0.5em;
+}
+
+.post-content {
+    min-width: 100%;
+}
+
+.tlist {
+    min-width: 100%
+}
+.tlist td {
+    padding: 0.1em;
+}

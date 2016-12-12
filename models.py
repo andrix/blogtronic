@@ -40,3 +40,22 @@ class Post(db.Model):
     last_modified = db.DateTimeProperty(auto_now=True)
 
     user_ref = db.ReferenceProperty(User)
+
+    def user(self):
+        return self.user_ref
+
+class Like(db.Model):
+    user_ref = db.ReferenceProperty(User)
+    post_ref = db.ReferenceProperty(Post)
+
+    @classmethod
+    def get_post_liked_by(cls, post, user):
+        q = cls.all()
+        q.filter("user_ref =", user.key())
+        q.filter("post_ref =", post.key())
+        result = q.get()
+        return result
+
+    @classmethod
+    def post_liked_by(cls, post, user):
+        return (cls.get_post_liked_by(post, user) is not None)

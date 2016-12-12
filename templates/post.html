@@ -1,12 +1,25 @@
 <div class="post">
     <div class="post-heading">
         <h2><a class="post-title" href="/blog/{{ p.key().id() }}">{{ p.subject }}</a></h2>
+
         <p class="post-date">
-            {{ p.created.strftime("%b %d, %Y") }}
+            {{ p.created.strftime("%b %d, %Y") }} | by {{ p.user().name }}
         </p>
     </div>
     <hr class="post-sep">
     <div class="post-content">
         {{ p.content | replace("\n", "<br>") | safe}}
+    </div>
+
+    <div class="post-footer">
+        {% if user %}
+            <form action="/blog/like-post/{{ p.key().id() }}/" method="post">
+            {% if p.like %}
+                <input type="submit" value="Dislike" class="btn-like">
+            {% else %}
+                <input type="submit" value="Like" class="btn-like">
+            {% endif %}
+            </form>
+        {% endif %}
     </div>
 </div>

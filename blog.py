@@ -14,12 +14,13 @@
 
 import os
 
+import json
 import jinja2
 import webapp2
 
 from google.appengine.ext import db
 
-from models import Post, blog_key, User, users_key
+from models import Post, blog_key, User, users_key, Like
 from auth import make_secure_val, check_secure_val
 from validation import valid_username, valid_password, valid_email
 
@@ -68,6 +69,15 @@ class MainPage(BlogHandler):
 class BlogFront(BlogHandler):
     def get(self):
         posts = Post.all().order("-created")
+        if self.user:
+            postsl = []
+            for p in posts:
+                p.like = Like.post_liked_by(p, self.user)
+                postsl.append(p)
+            posts = postsl
+
+        for lk in Like.all():
+            print "%s, %s, %s" % (lk.user_ref.name, lk.post_ref.key().id(), lk.post_ref.subject)
         self.render("front.html", posts=posts, user=self.user)
 
 class PostPage(BlogHandler):
@@ -77,7 +87,9 @@ class PostPage(BlogHandler):
         if not post:
             self.error(404)
             return
-        self.render("permalink.html", p=post)
+        if self.user:
+            post.like = Like.post_liked_by(post, self.user)
+        self.render("permalink.html", p=post, user=self.user)
 
 class NewPost(BlogHandler):
     def get(self):
@@ -88,13 +100,67 @@ class NewPost(BlogHandler):
         content = self.request.get("content")
 
         if subject and content:
-            p = Post(parent=blog_key(), subject=subject, content=content)
-            p.put()
-            self.redirect('/blog/%s' % str(p.key().id()))
+            if self.user:
+                p = Post(parent=blog_key(), subject=subject, content=content,
+                user_ref=self.user.key())
+                p.put()
+                self.redirect('/blog/%s' % str(p.key().id()))
+            else:
+                self.redirect("/login/")
         else:
             error = "You should provide a subject, and a content for your post!"
             self.render("newpost.html", content=content, subject=subject, error=error)
 
+class EditPost(NewPost):
+    def get(self, post_id):
+        post = Post.get_by_id(int(post_id), parent=blog_key())
+        self.render("newpost.html", subject=post.subject, content=post.content,
+            post_id=post_id)
+
+    def post(self, post_id):
+        post = Post.get_by_id(int(post_id), parent=blog_key())
+        subject = self.request.get("subject")
+        content = self.request.get("content")
+        if subject and content:
+            post.subject = subject
+            post.content = content
+            post.put()
+            self.redirect('/blog/%s' % str(post.key().id()))
+        else:
+            error = "You should provide a subject, and a content for your post!"
+            self.render("newpost.html", content=content, subject=subject, error=error)
+
+
+class ListPosts(BlogHandler):
+    def get(self):
+        posts = Post.all().filter("user_ref = ", self.user.key())
+        self.render("edit-posts.html", posts=posts)
+
+class LikePost(BlogHandler):
+    def post(self, post_id):
+        post = Post.get_by_id(int(post_id), parent=blog_key())
+        result = Like.get_post_liked_by(post, self.user)
+        like = False
+        if result:
+            # it's a dislike
+            result.delete()
+        else:
+            # it's a like
+            like = True
+            lk = Like(user_ref=self.user.key(), post_ref=post.key())
+            lk.put()
+        self.redirect("/blog/likes?post_id=%s&like=%s" % (post.key().id(), int(like)))
+
+class ListLikes(BlogHandler):
+    def get(self):
+        like = self.request.get("like")
+        like = bool(int(like)) if like else None
+        post = None
+        if like:
+            post_id = self.request.get("post_id")
+            post = Post.get_by_id(int(post_id), parent=blog_key())
+        likes = Like.all().filter("user_ref = ", self.user.key())
+        self.render("likes.html", post_liked=post, user=self.user, likes=likes)
 
 class SignUp(BlogHandler):
     def get(self):
@@ -176,7 +242,11 @@ app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/blog/?', BlogFront),
     ('/blog/([0-9]+)', PostPage),
-    ('/blog/newpost', NewPost),
+    ('/blog/newpost/?', NewPost),
+    ('/blog/edit-posts/?', ListPosts),
+    ('/blog/edit/([0-9]+)', EditPost),
+    ('/blog/like-post/([0-9]+)/?', LikePost),
+    ('/blog/likes/?', ListLikes),
     # signup & login
     ('/signup/?', Register),
     ('/login/?', Login),

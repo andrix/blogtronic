@@ -2,17 +2,36 @@
 
 {% block content %}
 
+{% if post_id %}
+<h2>Edit post: {{ subject }}</h2>
+{% else %}
 <h2>New post</h2>
+{% endif %}
 
 <form method="post">
-    <label class="post-subject">Subject*</label>
-    <input type="text" name="subject" value="{{ subject }}">
-    <label class="post-content">Content*</div>
-    <textarea name="content">
-        {{ content }}
-    </textarea>
+    <table class="new-post">
+        <tr>
+            <td class="tlabel">
+                <label>Subject</label>
+            </td>
+            <td>
+                <input type="text" name="subject" value="{{ subject }}">
+            </td>
+        </tr>
+        <tr>
+            <td class="tlabel">
+                <label>Content</label>
+            </td>
+            <td>
+                <textarea class="post-content" name="content">{{ content }}</textarea>
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="post_id" value="{{ post_id }}">
     <div class="error">{{ error }}</div>
-
     <input type="submit">
+    {% if post_id %}
+    <a href="/blog/edit-posts/">Cancel</a>
+    {% endif %}
 </form>
 {% endblock %}
