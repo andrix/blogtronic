@@ -40,7 +40,7 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a href="/blog/newpost/">New post</a></li>
-                                    <li><a href="/blog/edit-posts/">Edit posts</a></li>
+                                    <li><a href="/blog/edit-posts/">Your posts</a></li>
                                     <li><a href="/blog/likes/">Liked posts</a></li>
                                     <li role="separator" class="divider"></li>
                                     <li><a href="/logout/">Log out</a></li>
@@ -97,10 +97,32 @@
                     "post_id": post_id,
                     "action": action
                 },
-                crossDomain: true,
                 success: function() {},
                 error: function() {}
             });
+        });
+
+        $(".lk-delete").click(function(event) {
+            aelem = event.target;
+            // Get the TR that has the Post ID
+            htr = aelem.parentNode.parentNode;
+            post_id = htr.id
+            var r = confirm("Are you sure you want to delete this post?");
+            if (r == true) {
+                $.ajax({
+                    url: "/blog/delete",
+                    type: "post",
+                    data: {
+                        "post_id": post_id,
+                    },
+                    success: function() {
+                        // Remove deleted row / article
+                        htable = htr.parentNode;
+                        htable.removeChild(htr);
+                    },
+                    error: function() {}
+                });
+            }
         });
     </script>
 </body>

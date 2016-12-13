@@ -90,44 +90,64 @@ class PostPage(BlogHandler):
             post.likes_count = Like.post_liked_count(post)
         self.render("permalink.html", p=post, user=self.user)
 
-class NewPost(BlogHandler):
+class CRUDPost(BlogHandler):
+    def _update(self, op, subject=None, content=None, post_id=None):
+        if self.user:
+            if op == "new" or op == "update":
+                if subject and content:
+                    post = Post(parent=blog_key(), subject=subject, content=content, user_ref=self.user.key())
+                    if op == "update":
+                        post = Post.get_by_id(int(post_id), parent=blog_key())
+                        post.subject = subject
+                        post.content = content
+                    post.put()
+                    self.redirect('/blog/%s' % str(post.key().id()))
+                else:
+                    error = "You should provide a subject, and "\
+                            "a content for your post!"
+                    self.render("newpost.html", content=content, \
+                        subject=subject, error=error)
+            elif op == "delete":
+                post = Post.get_by_id(int(post_id), parent=blog_key())
+                post.delete()
+                self.redirect('/blog/')
+            else:
+                error = "Invalid operation on post."
+                self.render("newpost.html", content=content,
+                    subject=subject, error=error)
+        else:
+            self.redirect("/login/")
+
+
+class NewPost(CRUDPost):
     def get(self):
         self.render("newpost.html")
 
     def post(self):
         subject = self.request.get("subject")
         content = self.request.get("content")
+        self._update("new", subject=subject, content=content)
 
-        if subject and content:
-            if self.user:
-                p = Post(parent=blog_key(), subject=subject, content=content,
-                user_ref=self.user.key())
-                p.put()
-                self.redirect('/blog/%s' % str(p.key().id()))
-            else:
-                self.redirect("/login/")
-        else:
-            error = "You should provide a subject, and a content for your post!"
-            self.render("newpost.html", content=content, subject=subject, error=error)
 
-class EditPost(NewPost):
+class EditPost(CRUDPost):
     def get(self, post_id):
         post = Post.get_by_id(int(post_id), parent=blog_key())
         self.render("newpost.html", subject=post.subject, content=post.content,
             post_id=post_id)
 
     def post(self, post_id):
-        post = Post.get_by_id(int(post_id), parent=blog_key())
         subject = self.request.get("subject")
         content = self.request.get("content")
-        if subject and content:
-            post.subject = subject
-            post.content = content
-            post.put()
-            self.redirect('/blog/%s' % str(post.key().id()))
-        else:
-            error = "You should provide a subject, and a content for your post!"
-            self.render("newpost.html", content=content, subject=subject, error=error)
+        self._update("update", subject=subject, content=content,
+            post_id=post_id)
+
+class DeletePost(CRUDPost):
+    def post(self):
+        post_id = self.request.get("post_id")
+        self._update("delete", post_id=post_id)
+
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps({"success": "OK"}))
 
 
 class ListPosts(BlogHandler):
@@ -248,6 +268,7 @@ app = webapp2.WSGIApplication([
     ('/blog/newpost/?', NewPost),
     ('/blog/edit-posts/?', ListPosts),
     ('/blog/edit/([0-9]+)', EditPost),
+    ('/blog/delete/?', DeletePost),
     ('/blog/like-post/?', LikePost),
     ('/blog/likes/?', ListLikes),
     # signup & login

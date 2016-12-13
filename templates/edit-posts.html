@@ -12,15 +12,17 @@
         <td></td>
     </tr>
 {% for p in posts %}
-    <tr>
+    <tr id="{{ p.key().id() }}">
         <td><a href="/blog/{{ p.key().id() }}/" >{{ p.subject }}</a></td>
         <td>{{ p.created.strftime("%b %d, %Y") }}</td>
         <td>{{ p.last_modified.strftime("%b %d, %Y") }}</td>
         <td>
-            <a href="/blog/edit/{{ p.key().id() }}">edit</a>
+            <a class="lk-edit" href="/blog/edit/{{ p.key().id() }}">edit</a>
+        </td>
+        <td>
+            <a class="lk-delete" role="button">delete</a>
         </td>
     <tr>
 {% endfor %}
 </table>
-
 {% endblock %}
