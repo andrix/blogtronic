@@ -59,3 +59,9 @@ class Like(db.Model):
     @classmethod
     def post_liked_by(cls, post, user):
         return (cls.get_post_liked_by(post, user) is not None)
+
+    @classmethod
+    def post_liked_count(cls, post):
+        q = cls.all()
+        q.filter("post_ref =", post.key())
+        return q.count()

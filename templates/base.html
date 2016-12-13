@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html>
 <head>
     <title>Blog tronic</title>
@@ -68,5 +67,41 @@
 
     <script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(".btn-like").click(function(event) {
+            btn = event.target;
+            btn.getElementsByClassName("btn-like-name");
+            var action = null;
+            post_id = btn.getAttribute("data-value");
+
+            badge_likes = $("span[data-value='" + post_id + "'][class*='badge']");
+            lcount = parseInt(badge_likes.text());
+
+            if (btn.textContent.trim() == "Like") {
+                btn.textContent = "Dislike";
+                action = "like";
+                lcount += 1
+            } else {
+                btn.textContent = "Like";
+                action = "dislike";
+                if (lcount > 0) {
+                    lcount -= 1;
+                }
+            }
+            badge_likes.text(lcount);
+
+            $.ajax({
+                url: "/blog/like-post",
+                type: "post",
+                data: {
+                    "post_id": post_id,
+                    "action": action
+                },
+                crossDomain: true,
+                success: function() {},
+                error: function() {}
+            });
+        });
+    </script>
 </body>
 </html>

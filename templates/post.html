@@ -11,15 +11,27 @@
         {{ p.content | replace("\n", "<br>") | safe}}
     </div>
 
-    <div class="post-footer">
+    <div class="row">
+        <div class="col-md-6">
         {% if user %}
-            <form action="/blog/like-post/{{ p.key().id() }}/" method="post">
-            {% if p.like %}
-                <input type="submit" value="Dislike" class="btn-like">
-            {% else %}
-                <input type="submit" value="Like" class="btn-like">
+            {% if user.name != p.user_ref.name %}
+            <button type="button" class="btn btn-default btn-lg btn-like">
+                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                <span class="btn-like-name" data-value="{{ p.key().id() }}">
+                {% if p.like %}
+                    Dislike
+                {% else %}
+                    Like
+                {% endif %}
+                </span>
+            </button>
             {% endif %}
-            </form>
         {% endif %}
+        </div>
+        <div class="col-md-6 text-right">
+            <p class="text-info">
+                Liked by <span class="badge" data-value="{{ p.key().id() }}">{{ p.likes_count }}</span>
+            </p>
+        </div>
     </div>
 </div>

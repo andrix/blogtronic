@@ -73,11 +73,9 @@ class BlogFront(BlogHandler):
             postsl = []
             for p in posts:
                 p.like = Like.post_liked_by(p, self.user)
+                p.likes_count = Like.post_liked_count(p)
                 postsl.append(p)
             posts = postsl
-
-        for lk in Like.all():
-            print "%s, %s, %s" % (lk.user_ref.name, lk.post_ref.key().id(), lk.post_ref.subject)
         self.render("front.html", posts=posts, user=self.user)
 
 class PostPage(BlogHandler):
@@ -89,6 +87,7 @@ class PostPage(BlogHandler):
             return
         if self.user:
             post.like = Like.post_liked_by(post, self.user)
+            post.likes_count = Like.post_liked_count(post)
         self.render("permalink.html", p=post, user=self.user)
 
 class NewPost(BlogHandler):
@@ -137,7 +136,10 @@ class ListPosts(BlogHandler):
         self.render("edit-posts.html", posts=posts)
 
 class LikePost(BlogHandler):
-    def post(self, post_id):
+    def post(self):
+        post_id = self.request.get("post_id")
+        action = self.request.get("action")
+
         post = Post.get_by_id(int(post_id), parent=blog_key())
         result = Like.get_post_liked_by(post, self.user)
         like = False
@@ -149,7 +151,8 @@ class LikePost(BlogHandler):
             like = True
             lk = Like(user_ref=self.user.key(), post_ref=post.key())
             lk.put()
-        self.redirect("/blog/likes?post_id=%s&like=%s" % (post.key().id(), int(like)))
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps({"success": "OK"}))
 
 class ListLikes(BlogHandler):
     def get(self):
@@ -245,7 +248,7 @@ app = webapp2.WSGIApplication([
     ('/blog/newpost/?', NewPost),
     ('/blog/edit-posts/?', ListPosts),
     ('/blog/edit/([0-9]+)', EditPost),
-    ('/blog/like-post/([0-9]+)/?', LikePost),
+    ('/blog/like-post/?', LikePost),
     ('/blog/likes/?', ListLikes),
     # signup & login
     ('/signup/?', Register),

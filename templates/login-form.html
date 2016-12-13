@@ -15,7 +15,13 @@
             <td><input type="password" name="password" value="{{ password }}"></td>
         </tr>
     </table>
-    <div class="error">{{ error }}</div>
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span class="sr-only">Error:</span>
+        {{ error }}
+    </div>
+    {% endif %}
 
     <input type="submit">
 </form>
