@@ -65,3 +65,11 @@ class Like(db.Model):
         q = cls.all()
         q.filter("post_ref =", post.key())
         return q.count()
+
+class Comment(db.Model):
+    commet = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
+
+    user_ref = db.ReferenceProperty(User)
+    post_ref = db.ReferenceProperty(Post)
