@@ -1,5 +1,5 @@
 from google.appengine.ext import db
-from auth import make_pw_hash, valid_pw
+from blogtronic.auth import make_pw_hash, valid_pw
 
 def users_key(group='default'):
     return db.Key.from_path("users", group)
@@ -66,10 +66,47 @@ class Like(db.Model):
         q.filter("post_ref =", post.key())
         return q.count()
 
+    @classmethod
+    def delete_likes_from(cls, post=None, user=None):
+        if not post and not user:
+            return
+        q = cls.all()
+        likes = q.filter("post_ref=", post.key())
+        db.delete(likes)
+
+
 class Comment(db.Model):
-    commet = db.TextProperty(required=True)
+    comment = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
 
     user_ref = db.ReferenceProperty(User)
     post_ref = db.ReferenceProperty(Post)
+
+    @classmethod
+    def count_for_post(cls, post):
+        q = cls.all()
+        q.filter("post_ref =", post.key())
+        return q.count()
+
+    @classmethod
+    def comments_for_post(cls, post):
+        q = cls.all()
+        q.filter("post_ref =", post.key())
+        q.order("-created")
+        return [c for c in q.run()]
+
+
+def post_extend(post, user):
+    """
+    Return an updated post with a few attributes added:
+    - like: if the post is liked by the user logged in or not
+    - likes_count: the number of like this post has (global)
+    - comments_count - the number of commenst this post has (global)
+    """
+
+    if user:
+        post.like = Like.post_liked_by(post, user)
+    post.likes_count = Like.post_liked_count(post)
+    post.comments_count = Comment.count_for_post(post)
+    return post

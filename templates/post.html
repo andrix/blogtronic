@@ -26,11 +26,21 @@
                 </span>
             </button>
             {% endif %}
+            <div class="text-left">
+                <form action="/blog/comment/new">
+                    <input type="hidden" name="post_id" value="{{ p.key().id() }}">
+                    <input type="submit" value="New comment">
+                </form>
+            </div>
         {% endif %}
         </div>
-        <div class="col-md-6 text-right">
-            <p class="text-info">
-                Liked by <span class="badge" data-value="{{ p.key().id() }}">{{ p.likes_count }}</span>
+        <div class="col-md-6">
+
+            <p class="text-info text-right">
+                Liked by <span class="badge like-count" data-value="{{ p.key().id() }}">{{ p.likes_count }}</span>
+            </p>
+            <p class="text-info text-right">
+                Comments <span class="badge comment-count" data-value="{{ p.key().id() }}">{{ p.comments_count }}</span>
             </p>
         </div>
     </div>

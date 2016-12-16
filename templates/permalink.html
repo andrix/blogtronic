@@ -2,4 +2,22 @@
 
 {% block content %}
     {% include "post.html" %}
+    <hr class="post-sep">
+    {% for comment in post_comments %}
+    <div class="panel panel-default" id="{{ comment.key().id() }}">
+        <div class="comment-bar text-right">
+            {% if user.name == comment.user_ref.name %}
+                <a href="/blog/comment/edit/{{ comment.key().id() }}">edit</a>
+                <a class="comment-delete" role="button">delete</a>
+            {% endif %}
+        </div>
+        <div class="panel-body">
+            {{ comment.comment }}
+        </div>
+        <div class="panel-footer text-right">
+            Posted on <strong>{{ comment.created.strftime("%b %d, %Y") }}</strong><br>
+            By <strong>{{ comment.user_ref.name }}</strong>
+        </div>
+    </div>
+    {% endfor %}
 {% endblock %}

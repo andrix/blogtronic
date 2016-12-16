@@ -10,7 +10,7 @@ handlers:
 - url: /fonts
   static_dir: fonts
 - url: /.*
-  script: blog.app
+  script: blogtronic.app.blog_app
 
 libraries:
 - name: jinja2
